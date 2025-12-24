@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eagrilift.mall.mapper.OrdersMapper">
+
+  <resultMap type="Orders" id="OrdersResult">
+    <result property="ordersId" column="orders_id"/>
+    <result property="productsUserId" column="products_user_id"/>
+    <result property="createTime" column="create_time"/>
+    <result property="shippingTime" column="shipping_time"/>
+    <result property="completeTime" column="complete_time"/>
+    <result property="totalPrice" column="total_price"/>
+    <result property="name" column="name"/>
+    <result property="phone" column="phone"/>
+    <result property="address" column="address"/>
+    <result property="status" column="status"/>
+    <result property="userId" column="user_id"/>
+    <result property="userName" column="user_name"/>
+    <result property="farmersName" column="farmersName"/>
+  </resultMap>
+
+  <resultMap id="OrdersOrdersProductsResult" type="Orders" extends="OrdersResult">
+    <collection property="ordersProductsList" ofType="OrdersProducts" column="orders_id"
+                select="selectOrdersProductsList"/>
+  </resultMap>
+
+  <resultMap type="OrdersProducts" id="OrdersProductsResult">
+    <result property="opId" column="op_id"/>
+    <result property="ordersId" column="orders_id"/>
+    <result property="productsId" column="products_id"/>
+    <result property="productsName" column="products_name"/>
+    <result property="image" column="image"/>
+    <result property="specs" column="specs"/>
+    <result property="origin" column="origin"/>
+    <result property="price" column="price"/>
+    <result property="quantity" column="quantity"/>
+  </resultMap>
+
+  <sql id="selectOrdersVo">
+    select orders_id,
+           products_user_id,
+           create_time,
+           shipping_time,
+           complete_time,
+           total_price,
+           name,
+           phone,
+           address,
+           status,
+           user_id
+    from orders
+  </sql>
+
+  <select id="selectOrdersList" parameterType="Orders" resultMap="OrdersResult">
+    select o.orders_id, o.products_user_id, o.create_time, o.shipping_time, o.complete_time,
+    o.total_price, o.name, o.phone, o.address, o.status, o.user_id,
+    u.user_name, -- 下单用户
+    (select real_name from farmers where user_id = o.products_user_id) as farmersName -- 农户名称
+    from orders o
+    left join sys_user u on o.user_id = u.user_id
+    <where>
+      <if test="ordersId != null  and ordersId != ''"> and o.orders_id = #{ordersId}</if>
+      <if test="productsUserId != null  and productsUserId != ''"> and o.products_user_id = #{productsUserId}</if>
+      <if test="status != null  and status != ''"> and o.status = #{status}</if>
+      <if test="userId != null "> and o.user_id = #{userId}</if>
+    </where>
+  </select>
+
+  <select id="selectOrdersByOrdersId" parameterType="String" resultMap="OrdersOrdersProductsResult">
+    select orders_id,
+           products_user_id,
+           create_time,
+           shipping_time,
+           complete_time,
+           total_price,
+           name,
+           phone,
+           address,
+           status,
+           user_id
+    from orders
+    where orders_id = #{ordersId}
+  </select>
+
+  <select id="selectOrdersProductsList" resultMap="OrdersProductsResult">
+    select op_id,
+           orders_id,
+           products_id,
+           products_name,
+           image,
+           specs,
+           origin,
+           price,
+           quantity
+    from orders_products
+    where orders_id = #{orders_id}
+  </select>
+
+  <insert id="insertOrders" parameterType="Orders">
+    insert into orders
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ordersId != null">orders_id,</if>
+      <if test="productsUserId != null and productsUserId != ''">products_user_id,</if>
+      <if test="createTime != null">create_time,</if>
+      <if test="shippingTime != null">shipping_time,</if>
+      <if test="completeTime != null">complete_time,</if>
+      <if test="totalPrice != null">total_price,</if>
+      <if test="name != null and name != ''">name,</if>
+      <if test="phone != null and phone != ''">phone,</if>
+      <if test="address != null and address != ''">address,</if>
+      <if test="status != null and status != ''">status,</if>
+      <if test="userId != null">user_id,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ordersId != null">#{ordersId},</if>
+      <if test="productsUserId != null and productsUserId != ''">#{productsUserId},</if>
+      <if test="createTime != null">#{createTime},</if>
+      <if test="shippingTime != null">#{shippingTime},</if>
+      <if test="completeTime != null">#{completeTime},</if>
+      <if test="totalPrice != null">#{totalPrice},</if>
+      <if test="name != null and name != ''">#{name},</if>
+      <if test="phone != null and phone != ''">#{phone},</if>
+      <if test="address != null and address != ''">#{address},</if>
+      <if test="status != null and status != ''">#{status},</if>
+      <if test="userId != null">#{userId},</if>
+    </trim>
+  </insert>
+
+  <update id="updateOrders" parameterType="Orders">
+    update orders
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="productsUserId != null and productsUserId != ''">products_user_id = #{productsUserId},</if>
+      <if test="createTime != null">create_time = #{createTime},</if>
+      <if test="shippingTime != null">shipping_time = #{shippingTime},</if>
+      <if test="completeTime != null">complete_time = #{completeTime},</if>
+      <if test="totalPrice != null">total_price = #{totalPrice},</if>
+      <if test="name != null and name != ''">name = #{name},</if>
+      <if test="phone != null and phone != ''">phone = #{phone},</if>
+      <if test="address != null and address != ''">address = #{address},</if>
+      <if test="status != null and status != ''">status = #{status},</if>
+      <if test="userId != null">user_id = #{userId},</if>
+    </trim>
+    where orders_id = #{ordersId}
+  </update>
+
+  <delete id="deleteOrdersByOrdersId" parameterType="String">
+    delete
+    from orders
+    where orders_id = #{ordersId}
+  </delete>
+
+  <delete id="deleteOrdersByOrdersIds" parameterType="String">
+    delete from orders where orders_id in
+    <foreach item="ordersId" collection="array" open="(" separator="," close=")">
+      #{ordersId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteOrdersProductsByOrdersIds" parameterType="String">
+    delete from orders_products where orders_id in
+    <foreach item="ordersId" collection="array" open="(" separator="," close=")">
+      #{ordersId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteOrdersProductsByOrdersId" parameterType="String">
+    delete
+    from orders_products
+    where orders_id = #{ordersId}
+  </delete>
+
+  <insert id="batchOrdersProducts">
+    insert into orders_products( op_id, orders_id, products_id, products_name, image, specs, origin, price, quantity)
+    values
+    <foreach item="item" index="index" collection="list" separator=",">
+      ( #{item.opId}, #{item.ordersId}, #{item.productsId}, #{item.productsName}, #{item.image}, #{item.specs},
+      #{item.origin}, #{item.price}, #{item.quantity})
+    </foreach>
+  </insert>
+</mapper>

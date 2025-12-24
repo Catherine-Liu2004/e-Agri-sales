@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eagrilift.mall.mapper.CartMapper">
+
+  <resultMap type="Cart" id="CartResult">
+    <result property="cartId" column="cart_id"/>
+    <result property="productsId" column="products_id"/>
+    <result property="quantity" column="quantity"/>
+    <result property="userId" column="user_id"/>
+    <result property="createTime" column="create_time"/>
+    <result property="specs"    column="specs"    />
+    <result property="origin"    column="origin"    />
+    <result property="price"    column="price"    />
+    <result property="image"    column="image"    />
+    <result property="productsUserId"    column="productsUserId"    />
+    <result property="productsName"    column="productsName"    />
+    <result property="createUserName"    column="createUserName"    />
+    <result property="toUserName"    column="toUserName"    />
+  </resultMap>
+
+  <sql id="selectCartVo">
+    select cart_id, products_id, quantity, user_id, create_time
+    from cart
+  </sql>
+
+  <select id="selectCartList" parameterType="Cart" resultMap="CartResult">
+    select c.cart_id, c.products_id, c.quantity, c.user_id, c.create_time,
+    p.specs, p.origin, p.price, p.image,
+    p.user_id as productsUserId, -- 产品所属农户用户ID
+    p.name as productsName, -- 产品名称
+    u.user_name as createUserName, -- 创建人用户名
+    (select user_name from sys_user where user_id = p.user_id) as toUserName -- 产品所属农户用户名
+    from cart c
+    left join products p on c.products_id = p.products_id
+    left join sys_user u on c.user_id = u.user_id
+    <where>
+      <if test="productsId != null  and productsId != ''">
+        and c.products_id like concat('%', #{productsId}, '%')
+      </if>
+      <if test="userId != null ">and c.user_id = #{userId}</if>
+      <if test="productsName != null  and productsName != ''">
+        and p.name like concat('%', #{productsName}, '%')
+      </if>
+      <if test="toUserName != null  and toUserName != ''">
+        and (select user_name from sys_user where user_id = p.user_id)
+        like concat('%', #{toUserName}, '%')
+      </if>
+      <if test="createUserName != null  and createUserName != ''">
+        and u.user_name like concat('%', #{createUserName}, '%')
+      </if>
+    </where>
+  </select>
+
+  <select id="selectCartByCartId" parameterType="String" resultMap="CartResult">
+    <include refid="selectCartVo"/>
+    where cart_id = #{cartId}
+  </select>
+
+  <!--根据产品ID和用户ID查询购物车项ID-->
+  <select id="selectCartIdByProductsAndUserId" resultType="java.lang.String">
+    select cart_id from cart
+    where products_id = #{productsId} and user_id = #{userId}
+  </select>
+
+  <insert id="insertCart" parameterType="Cart">
+    insert into cart
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cartId != null">cart_id,</if>
+      <if test="productsId != null and productsId != ''">products_id,</if>
+      <if test="quantity != null">quantity,</if>
+      <if test="userId != null">user_id,</if>
+      <if test="createTime != null">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cartId != null">#{cartId},</if>
+      <if test="productsId != null and productsId != ''">#{productsId},</if>
+      <if test="quantity != null">#{quantity},</if>
+      <if test="userId != null">#{userId},</if>
+      <if test="createTime != null">#{createTime},</if>
+    </trim>
+  </insert>
+
+  <update id="updateCart" parameterType="Cart">
+    update cart
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="productsId != null and productsId != ''">products_id = #{productsId},</if>
+      <if test="quantity != null">quantity = #{quantity},</if>
+      <if test="userId != null">user_id = #{userId},</if>
+      <if test="createTime != null">create_time = #{createTime},</if>
+    </trim>
+    where cart_id = #{cartId}
+  </update>
+
+  <delete id="deleteCartByCartId" parameterType="String">
+    delete
+    from cart
+    where cart_id = #{cartId}
+  </delete>
+
+  <delete id="deleteCartByCartIds" parameterType="String">
+    delete from cart where cart_id in
+    <foreach item="cartId" collection="array" open="(" separator="," close=")">
+      #{cartId}
+    </foreach>
+  </delete>
+</mapper>

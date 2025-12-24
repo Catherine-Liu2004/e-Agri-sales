@@ -1,0 +1,69 @@
+package com.eagrilift.mall.service;
+
+import java.util.List;
+import com.eagrilift.mall.domain.Policies;
+
+/**
+ * 助农政策Service接口
+ *
+ * @author eagrilift
+ * @date 2025-12-16
+ */
+public interface IPoliciesService
+{
+    /**
+     * 查询助农政策
+     *
+     * @param policiesId 助农政策主键
+     * @return 助农政策
+     */
+    public Policies selectPoliciesByPoliciesId(String policiesId);
+
+    /**
+     * 查询助农政策列表
+     *
+     * @param policies 助农政策
+     * @return 助农政策集合
+     */
+    public List<Policies> selectPoliciesList(Policies policies);
+
+    /**
+     * 新增助农政策
+     *
+     * @param policies 助农政策
+     * @return 结果
+     */
+    public int insertPolicies(Policies policies);
+
+    /**
+     * 批量新增助农政策
+     *
+     * @param policiess 助农政策List
+     * @return 结果
+     */
+    public int batchInsertPolicies(List<Policies> policiess);
+
+    /**
+     * 修改助农政策
+     *
+     * @param policies 助农政策
+     * @return 结果
+     */
+    public int updatePolicies(Policies policies);
+
+    /**
+     * 批量删除助农政策
+     *
+     * @param policiesIds 需要删除的助农政策主键集合
+     * @return 结果
+     */
+    public int deletePoliciesByPoliciesIds(String[] policiesIds);
+
+    /**
+     * 删除助农政策信息
+     *
+     * @param policiesId 助农政策主键
+     * @return 结果
+     */
+    public int deletePoliciesByPoliciesId(String policiesId);
+}

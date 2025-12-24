@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eagrilift.mall.mapper.PoliciesMapper">
+    
+    <resultMap type="Policies" id="PoliciesResult">
+        <result property="policiesId"    column="policies_id"    />
+        <result property="title"    column="title"    />
+        <result property="category"    column="category"    />
+        <result property="region"    column="region"    />
+        <result property="publisher"    column="publisher"    />
+        <result property="summary"    column="summary"    />
+        <result property="content"    column="content"    />
+        <result property="department"    column="department"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="phone"    column="phone"    />
+        <result property="address"    column="address"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPoliciesVo">
+        select policies_id, title, category, region, publisher, summary, content, department, contact_person, phone, address, create_time from policies
+    </sql>
+
+    <select id="selectPoliciesList" parameterType="Policies" resultMap="PoliciesResult">
+        <include refid="selectPoliciesVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+        </where>
+    </select>
+    
+    <select id="selectPoliciesByPoliciesId" parameterType="String" resultMap="PoliciesResult">
+        <include refid="selectPoliciesVo"/>
+        where policies_id = #{policiesId}
+    </select>
+
+    <insert id="insertPolicies" parameterType="Policies">
+        insert into policies
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="policiesId != null">policies_id,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="region != null and region != ''">region,</if>
+            <if test="publisher != null and publisher != ''">publisher,</if>
+            <if test="summary != null and summary != ''">summary,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="department != null and department != ''">department,</if>
+            <if test="contactPerson != null and contactPerson != ''">contact_person,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="policiesId != null">#{policiesId},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="region != null and region != ''">#{region},</if>
+            <if test="publisher != null and publisher != ''">#{publisher},</if>
+            <if test="summary != null and summary != ''">#{summary},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="department != null and department != ''">#{department},</if>
+            <if test="contactPerson != null and contactPerson != ''">#{contactPerson},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePolicies" parameterType="Policies">
+        update policies
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="region != null and region != ''">region = #{region},</if>
+            <if test="publisher != null and publisher != ''">publisher = #{publisher},</if>
+            <if test="summary != null and summary != ''">summary = #{summary},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="department != null and department != ''">department = #{department},</if>
+            <if test="contactPerson != null and contactPerson != ''">contact_person = #{contactPerson},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where policies_id = #{policiesId}
+    </update>
+
+    <delete id="deletePoliciesByPoliciesId" parameterType="String">
+        delete from policies where policies_id = #{policiesId}
+    </delete>
+
+    <delete id="deletePoliciesByPoliciesIds" parameterType="String">
+        delete from policies where policies_id in 
+        <foreach item="policiesId" collection="array" open="(" separator="," close=")">
+            #{policiesId}
+        </foreach>
+    </delete>
+</mapper>

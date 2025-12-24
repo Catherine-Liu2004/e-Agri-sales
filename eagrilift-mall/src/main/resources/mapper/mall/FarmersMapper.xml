@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eagrilift.mall.mapper.FarmersMapper">
+
+  <resultMap type="Farmers" id="FarmersResult">
+    <result property="farmersId" column="farmers_id"/>
+    <result property="farmerType" column="farmer_type"/>
+    <result property="realName" column="real_name"/>
+    <result property="idCard" column="id_card"/>
+    <result property="phone" column="phone"/>
+    <result property="address" column="address"/>
+    <result property="mainProducts" column="main_products"/>
+    <result property="scale" column="scale"/>
+    <result property="idCardFront" column="id_card_front"/>
+    <result property="idCardBack" column="id_card_back"/>
+    <result property="landProof" column="land_proof"/>
+    <result property="productPhotos" column="product_photos"/>
+    <result property="otherProof" column="other_proof"/>
+    <result property="authStatus" column="auth_status"/>
+    <result property="userId" column="user_id"/>
+    <result property="createTime" column="create_time"/>
+    <result property="userName" column="user_name"/>
+  </resultMap>
+
+  <sql id="selectFarmersVo">
+    select farmers_id,
+           farmer_type,
+           real_name,
+           id_card,
+           phone,
+           address,
+           main_products,
+           scale,
+           id_card_front,
+           id_card_back,
+           land_proof,
+           product_photos,
+           other_proof,
+           auth_status,
+           user_id,
+           create_time
+    from farmers
+  </sql>
+
+  <select id="selectFarmersList" parameterType="Farmers" resultMap="FarmersResult">
+    select f.farmers_id, f.farmer_type, f.real_name, f.id_card, f.phone, f.address,
+    f.main_products, f.scale, f.id_card_front, f.id_card_back, f.land_proof,
+    f.product_photos, f.other_proof, f.auth_status, f.user_id, f.create_time,
+    u.user_name
+    from farmers f
+    left join sys_user u on f.user_id = u.user_id
+    <where>
+      <if test="farmerType != null  and farmerType != ''">and f.farmer_type = #{farmerType}</if>
+      <if test="realName != null  and realName != ''">and f.real_name like concat('%', #{realName}, '%')</if>
+      <if test="authStatus != null  and authStatus != ''">and f.auth_status = #{authStatus}</if>
+      <if test="userId != null ">and f.user_id = #{userId}</if>
+    </where>
+  </select>
+
+  <select id="selectFarmersByFarmersId" parameterType="String" resultMap="FarmersResult">
+    <include refid="selectFarmersVo"/>
+    where farmers_id = #{farmersId}
+  </select>
+
+  <insert id="insertFarmers" parameterType="Farmers">
+    insert into farmers
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="farmersId != null">farmers_id,</if>
+      <if test="farmerType != null and farmerType != ''">farmer_type,</if>
+      <if test="realName != null and realName != ''">real_name,</if>
+      <if test="idCard != null and idCard != ''">id_card,</if>
+      <if test="phone != null and phone != ''">phone,</if>
+      <if test="address != null and address != ''">address,</if>
+      <if test="mainProducts != null and mainProducts != ''">main_products,</if>
+      <if test="scale != null and scale != ''">scale,</if>
+      <if test="idCardFront != null and idCardFront != ''">id_card_front,</if>
+      <if test="idCardBack != null and idCardBack != ''">id_card_back,</if>
+      <if test="landProof != null">land_proof,</if>
+      <if test="productPhotos != null">product_photos,</if>
+      <if test="otherProof != null">other_proof,</if>
+      <if test="authStatus != null and authStatus != ''">auth_status,</if>
+      <if test="userId != null">user_id,</if>
+      <if test="createTime != null">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="farmersId != null">#{farmersId},</if>
+      <if test="farmerType != null and farmerType != ''">#{farmerType},</if>
+      <if test="realName != null and realName != ''">#{realName},</if>
+      <if test="idCard != null and idCard != ''">#{idCard},</if>
+      <if test="phone != null and phone != ''">#{phone},</if>
+      <if test="address != null and address != ''">#{address},</if>
+      <if test="mainProducts != null and mainProducts != ''">#{mainProducts},</if>
+      <if test="scale != null and scale != ''">#{scale},</if>
+      <if test="idCardFront != null and idCardFront != ''">#{idCardFront},</if>
+      <if test="idCardBack != null and idCardBack != ''">#{idCardBack},</if>
+      <if test="landProof != null">#{landProof},</if>
+      <if test="productPhotos != null">#{productPhotos},</if>
+      <if test="otherProof != null">#{otherProof},</if>
+      <if test="authStatus != null and authStatus != ''">#{authStatus},</if>
+      <if test="userId != null">#{userId},</if>
+      <if test="createTime != null">#{createTime},</if>
+    </trim>
+  </insert>
+
+  <update id="updateFarmers" parameterType="Farmers">
+    update farmers
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="farmerType != null and farmerType != ''">farmer_type = #{farmerType},</if>
+      <if test="realName != null and realName != ''">real_name = #{realName},</if>
+      <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+      <if test="phone != null and phone != ''">phone = #{phone},</if>
+      <if test="address != null and address != ''">address = #{address},</if>
+      <if test="mainProducts != null and mainProducts != ''">main_products = #{mainProducts},</if>
+      <if test="scale != null and scale != ''">scale = #{scale},</if>
+      <if test="idCardFront != null and idCardFront != ''">id_card_front = #{idCardFront},</if>
+      <if test="idCardBack != null and idCardBack != ''">id_card_back = #{idCardBack},</if>
+      <if test="landProof != null">land_proof = #{landProof},</if>
+      <if test="productPhotos != null">product_photos = #{productPhotos},</if>
+      <if test="otherProof != null">other_proof = #{otherProof},</if>
+      <if test="authStatus != null and authStatus != ''">auth_status = #{authStatus},</if>
+      <if test="userId != null">user_id = #{userId},</if>
+      <if test="createTime != null">create_time = #{createTime},</if>
+    </trim>
+    where farmers_id = #{farmersId}
+  </update>
+
+  <delete id="deleteFarmersByFarmersId" parameterType="String">
+    delete
+    from farmers
+    where farmers_id = #{farmersId}
+  </delete>
+
+  <delete id="deleteFarmersByFarmersIds" parameterType="String">
+    delete from farmers where farmers_id in
+    <foreach item="farmersId" collection="array" open="(" separator="," close=")">
+      #{farmersId}
+    </foreach>
+  </delete>
+
+  <!--查询当前用户有没有进行农户认证-->
+  <select id="selectIsAuth" resultType="java.lang.Boolean">
+    select count(farmers_id)
+    from farmers
+    where user_id = #{userId}
+  </select>
+
+  <!--根据用户ID查询审核状态-->
+  <select id="selectFarmersByUserId" resultType="java.lang.String">
+    select auth_status
+    from farmers
+    where user_id = #{userId}
+  </select>
+</mapper>

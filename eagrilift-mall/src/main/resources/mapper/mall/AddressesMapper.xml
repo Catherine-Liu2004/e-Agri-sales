@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eagrilift.mall.mapper.AddressesMapper">
+
+  <resultMap type="Addresses" id="AddressesResult">
+    <result property="addressesId" column="addresses_id"/>
+    <result property="name" column="name"/>
+    <result property="phone" column="phone"/>
+    <result property="detail" column="detail"/>
+    <result property="isDefault" column="isDefault"/>
+    <result property="userId" column="user_id"/>
+    <result property="createTime" column="create_time"/>
+    <result property="userName" column="user_name"/>
+  </resultMap>
+
+  <sql id="selectAddressesVo">
+    select addresses_id, name, phone, detail, isDefault, user_id, create_time
+    from addresses
+  </sql>
+
+  <select id="selectAddressesList" parameterType="Addresses" resultMap="AddressesResult">
+    select a.addresses_id, a.name, a.phone, a.detail, a.isDefault, a.user_id, a.create_time,
+    u.user_name
+    from addresses a
+    left join sys_user u on a.user_id = u.user_id
+    <where>
+      <if test="name != null  and name != ''">and a.name like concat('%', #{name}, '%')</if>
+      <if test="isDefault != null ">and a.isDefault = #{isDefault}</if>
+      <if test="userId != null ">and a.user_id = #{userId}</if>
+    </where>
+  </select>
+  <select id="selectAddressesByAddressesId" parameterType="String" resultMap="AddressesResult">
+    <include refid="selectAddressesVo"/>
+    where addresses_id = #{addressesId}
+  </select>
+
+  <!--根据当前用户ID查询该用户此前的默认地址ID-->
+  <select id="selectIsDefaultAddressIdByUserId" resultType="java.lang.String">
+    select addresses_id
+    from addresses
+    where user_id = #{userId}
+      and isDefault = 1
+  </select>
+
+  <!--根据用户ID查询该用户有没有默认地址-->
+  <select id="selectIsDefaultByUserId" resultType="java.lang.Integer">
+    select count(addresses_id)
+    from addresses where user_id = #{userId} and isDefault = 1
+  </select>
+
+  <insert id="insertAddresses" parameterType="Addresses">
+    insert into addresses
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="addressesId != null">addresses_id,</if>
+      <if test="name != null and name != ''">name,</if>
+      <if test="phone != null and phone != ''">phone,</if>
+      <if test="detail != null and detail != ''">detail,</if>
+      <if test="isDefault != null">isDefault,</if>
+      <if test="userId != null">user_id,</if>
+      <if test="createTime != null">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="addressesId != null">#{addressesId},</if>
+      <if test="name != null and name != ''">#{name},</if>
+      <if test="phone != null and phone != ''">#{phone},</if>
+      <if test="detail != null and detail != ''">#{detail},</if>
+      <if test="isDefault != null">#{isDefault},</if>
+      <if test="userId != null">#{userId},</if>
+      <if test="createTime != null">#{createTime},</if>
+    </trim>
+  </insert>
+
+  <update id="updateAddresses" parameterType="Addresses">
+    update addresses
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="name != null and name != ''">name = #{name},</if>
+      <if test="phone != null and phone != ''">phone = #{phone},</if>
+      <if test="detail != null and detail != ''">detail = #{detail},</if>
+      <if test="isDefault != null">isDefault = #{isDefault},</if>
+      <if test="userId != null">user_id = #{userId},</if>
+      <if test="createTime != null">create_time = #{createTime},</if>
+    </trim>
+    where addresses_id = #{addressesId}
+  </update>
+
+  <delete id="deleteAddressesByAddressesId" parameterType="String">
+    delete
+    from addresses
+    where addresses_id = #{addressesId}
+  </delete>
+
+  <delete id="deleteAddressesByAddressesIds" parameterType="String">
+    delete from addresses where addresses_id in
+    <foreach item="addressesId" collection="array" open="(" separator="," close=")">
+      #{addressesId}
+    </foreach>
+  </delete>
+</mapper>
